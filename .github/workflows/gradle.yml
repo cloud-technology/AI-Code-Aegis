@@ -30,4 +30,4 @@ jobs:
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew --no-daemon clean build publish
+      run: ./gradlew --no-daemon clean build publish --stacktrace
