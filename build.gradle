@@ -86,9 +86,6 @@ publishing {
 	publications {
         gpr(MavenPublication) {
             artifact bootJar
-            groupId = project.ext.group
-            artifactId = project.ext.name
-            version = project.ext.version
         }
     }
 }
