@@ -1,0 +1,72 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.0'
+	id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'io.github.cloudtechnology'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+ext {
+	set('springShellVersion', "3.2.4") // https://central.sonatype.com/artifact/org.springframework.shell/spring-shell-dependencies
+	set('springAiVersion', "1.0.0-SNAPSHOT")
+	set('langchain4jVersion', "0.31.0") // https://central.sonatype.com/artifact/dev.langchain4j/langchain4j
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.shell:spring-shell-starter'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	// developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// commons
+	implementation 'commons-codec:commons-codec:1.17.0'
+	implementation 'commons-io:commons-io:2.16.1'
+	// langchain4j
+	// implementation 'dev.langchain4j:langchain4j-open-ai'
+	// Spring AI
+	implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
+	// implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+	implementation 'org.springframework.ai:spring-ai-openai'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.shell:spring-shell-dependencies:${springShellVersion}"
+		// mavenBom "dev.langchain4j:langchain4j-bom:${langchain4jVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+        showStandardStreams = true
+    }
+}

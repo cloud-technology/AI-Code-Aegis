@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: AICodeAegis
+  main:
+    web-application-type: none
+
+ai:
+  provider: ${provider}
+  key: ${key}
+  model: ${model}
