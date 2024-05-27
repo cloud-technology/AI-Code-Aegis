@@ -25,6 +25,11 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     # - name: Setup Gradle
     #   uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+    - name: test
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: echo "USERNAME=${USERNAME}" 
 
     - name: Build with Gradle Wrapper
       env:
