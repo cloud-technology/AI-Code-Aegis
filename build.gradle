@@ -85,7 +85,7 @@ publishing {
     }
 	publications {
         gpr(MavenPublication) {
-            artifact bootJar
+            from(components.java)
         }
     }
 }
