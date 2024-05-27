@@ -28,5 +28,6 @@ jobs:
 
     - name: Build with Gradle Wrapper
       env:
+        USERNAME: ${{ actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: ./gradlew --no-daemon clean build publish
