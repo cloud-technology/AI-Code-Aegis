@@ -2,10 +2,11 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
+	id 'maven-publish'
 }
 
 group = 'io.github.cloudtechnology'
-version = '0.0.1-SNAPSHOT'
+version = '0.1.0'
 
 java {
 	sourceCompatibility = '17'
@@ -68,5 +69,23 @@ tasks.named('test') {
 	testLogging {
         events "PASSED", "FAILED", "SKIPPED"
         showStandardStreams = true
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/cloud-technology/AI-Code-Aegis")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            artifact bootJar
+        }
     }
 }

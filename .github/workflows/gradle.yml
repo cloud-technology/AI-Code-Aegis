@@ -27,4 +27,7 @@ jobs:
     #   uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew --no-daemon clean build
+      env:
+        USERNAME: $GITHUB_ACTOR
+        TOKEN: ${{ github.token }}
+      run: ./gradlew --no-daemon clean build publish
