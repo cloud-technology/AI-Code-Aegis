@@ -51,21 +51,19 @@ public class AzureDevOpsClient {
         String title = codeReviewResult.issues();
         StringBuilder description = new StringBuilder();
         // 使用 Markdown 語法格式化描述
-        description.append("**檔名:** " + codeReviewResult.fileName() + "\n\n");
-        description.append("**改善建議:**\n\n");
-        description.append("```\n");
-        description.append(codeReviewResult.suggestions());
-        description.append("\n```\n\n");
+        // 使用 HTML 語法格式化描述
+        description.append("檔名: ").append(codeReviewResult.fileName()).append("<br>");
+        description.append("改善建議:<br>");
+        description.append("<pre>").append(escapeHtmlAndReplaceNewlines(codeReviewResult.suggestions())).append("</pre>");
+        description.append("<br>");
 
-        description.append("**調整前:**\n\n");
-        description.append("```\n");
-        description.append(codeReviewResult.beforeModification());
-        description.append("\n```\n\n");
+        description.append("<br>調整前:<br>");
+        description.append("<pre>").append(escapeHtmlAndReplaceNewlines(codeReviewResult.beforeModification())).append("</pre>");
+        description.append("<br>");
 
-        description.append("**調整後:**\n\n");
-        description.append("```\n");
-        description.append(codeReviewResult.afterModification());
-        description.append("\n```\n\n");
+        description.append("<br>調整後:<br>");
+        description.append("<pre>").append(escapeHtmlAndReplaceNewlines(codeReviewResult.afterModification())).append("</pre>");
+        description.append("<br>");
         log.info("title: {}, description: {}", title, description.toString());
 
         List<Map<String, Object>> requestBody = createRequestBody(title, description.toString(), assignedTo);
@@ -73,6 +71,17 @@ public class AzureDevOpsClient {
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
         System.out.println("Response Body: " + response.getBody());
+    }
+
+    private String escapeHtmlAndReplaceNewlines(String input) {
+        if (input == null) {
+            return "";
+        }
+        // 將 HTML 特殊字符轉義並替換換行符為 <br>
+        return input.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\n", "<br/>");
     }
 
     /**

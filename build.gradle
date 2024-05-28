@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.cloudtechnology'
-version = '0.2.5'
+version = '0.2.6'
 
 java {
 	sourceCompatibility = '17'
