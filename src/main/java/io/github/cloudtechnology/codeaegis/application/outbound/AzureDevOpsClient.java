@@ -50,13 +50,28 @@ public class AzureDevOpsClient {
         HttpHeaders headers = createHeaders();
         String title = codeReviewResult.issues();
         StringBuilder description = new StringBuilder();
-        description.append("檔名:" + codeReviewResult.fileName() + "\n");
-        description.append("改善建議:\n");
-        description.append(codeReviewResult.suggestions() + "\n");
-        description.append("調整前:\n");
-        description.append(codeReviewResult.beforeModification() + "\n");
-        description.append("調整後:\n");
-        description.append(codeReviewResult.afterModification() + "\n");
+        description.append("<div>檔名:" + codeReviewResult.fileName() + "</div>");
+
+        description.append("<div>");
+        description.append("改善建議:<br/>");
+        description.append("<pre>");
+        description.append(codeReviewResult.suggestions());
+        description.append("</pre>");
+        description.append("</div>");
+
+        description.append("<div>");
+        description.append("調整前:<br/>");
+        description.append("<pre>");
+        description.append(codeReviewResult.beforeModification());
+        description.append("</pre>");
+        description.append("</div>");
+
+        description.append("<div>");
+        description.append("調整後:<br/>");
+        description.append("<pre>");
+        description.append(codeReviewResult.afterModification());
+        description.append("</pre>");
+        description.append("</div>");
         log.info("title: {}, description: {}", title, description.toString());
 
         List<Map<String, Object>> requestBody = createRequestBody(title, description.toString(), assignedTo);
