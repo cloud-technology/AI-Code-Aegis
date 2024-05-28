@@ -42,7 +42,7 @@ public class CodeReviewAgent extends AbstractShellComponent {
         log.info("orgUri={}, teamProject={}, email={}", orgUri, teamProject, email);
 
         Set<String> excludedDirectories = Set.of(".git", ".devcontainer", ".gradle", ".history", ".vscode", "build",
-                "gradle", "config");
+                "gradle", "config", "static");
         Set<String> excludedFiles = Set.of(".gitignore", "compose.yaml", "gradlew", "gradlew.bat", "HELP.md",
                 "LICENSE", "README.md", "settings.gradle", ".DS_Store", "build.gradle");
         DirectoryExplorer explorer = new DirectoryExplorer();
