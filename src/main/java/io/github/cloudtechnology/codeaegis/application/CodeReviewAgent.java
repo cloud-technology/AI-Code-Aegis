@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.standard.AbstractShellComponent;
 
+import io.github.cloudtechnology.codeaegis.application.outbound.AzureDevOpsClient;
 import io.github.cloudtechnology.codeaegis.application.outbound.CodeReviewResult;
 import io.github.cloudtechnology.codeaegis.utility.DirectoryExplorer;
 import io.github.cloudtechnology.codeaegis.utility.FileContentReader;
@@ -33,11 +34,12 @@ public class CodeReviewAgent extends AbstractShellComponent {
     public void codeReview() {
         System.out.println("Code Review Agent Generator");
 
-        log.info("System.TeamFoundationCollectionUri={}", environment.getProperty("System.TeamFoundationCollectionUri"));
-        log.info("System.TeamProject={}", environment.getProperty("System.TeamProject"));
-        log.info("Build.RequestedForEmail={}", environment.getProperty("Build.RequestedForEmail"));
-
         String email = environment.getProperty("Build.RequestedForEmail");
+        String orgUri = environment.getProperty("System.CollectionUri");
+        String teamProject = environment.getProperty("System.TeamProject");
+        String personalAccessToken = environment.getProperty("devops_pat");
+
+        log.info("orgUri={}, teamProject={}, email={}", orgUri, teamProject, email);
 
         Set<String> excludedDirectories = Set.of(".git", ".devcontainer", ".gradle", ".history", ".vscode", "build",
                 "gradle", "config");
@@ -94,31 +96,31 @@ public class CodeReviewAgent extends AbstractShellComponent {
                 {codeContent}
                 ```
                 """;
-
+        AzureDevOpsClient azureDevOpsClient = new AzureDevOpsClient(orgUri, teamProject, personalAccessToken);
         for (FileInfo fileInfo : fileInfoList) {
             if (!fileInfo.isDirectory()) {
                 // Prompt prompt = promptTemplate.create(Map.of("codeContent",
                 // fileInfo.getContent()));
-
-                CodeReviewResult codeReviewResult = chatClient.prompt()
-                        .user(userSpec -> userSpec
-                                .text(userPromptTemplate)
-                                .param("fileName", fileInfo.getName())
-                                .param("relativePath", fileInfo.getRelativePath())
-                                .param("codeContent", fileInfo.getContent())
-                                .param("assignedTo", email))
-                        .options(OpenAiChatOptions.builder()
-                                .withResponseFormat(new OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object"))
-                                .build())
-                        .call()
-                        .entity(CodeReviewResult.class);
-                log.info("issues={}, hasIssues={}", codeReviewResult.fileName(), codeReviewResult.hasIssues());
-                if (codeReviewResult.hasIssues()) {
-                    log.info("filename={}, issues={}, suggestions={}", codeReviewResult.fileName(),
-                            codeReviewResult.issues(),
-                            codeReviewResult.suggestions());
-                    log.info("beforeModification={}, afterModification={}", codeReviewResult.beforeModification(),
-                            codeReviewResult.afterModification());
+                CodeReviewResult codeReviewResult = null;
+                try {
+                    codeReviewResult = chatClient.prompt()
+                            .user(userSpec -> userSpec
+                                    .text(userPromptTemplate)
+                                    .param("fileName", fileInfo.getName())
+                                    .param("relativePath", fileInfo.getRelativePath())
+                                    .param("codeContent", fileInfo.getContent())
+                                    .param("assignedTo", email))
+                            .options(OpenAiChatOptions.builder()
+                                    .withResponseFormat(
+                                            new OpenAiApi.ChatCompletionRequest.ResponseFormat("json_object"))
+                                    .build())
+                            .call()
+                            .entity(CodeReviewResult.class);
+                    if (codeReviewResult.hasIssues()) {
+                        azureDevOpsClient.createWorkItem(codeReviewResult, email);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to read file content: {}", fileInfo.getAbsolutePath(), e);
                 }
             }
         }

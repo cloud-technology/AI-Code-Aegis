@@ -11,12 +11,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * AzureDevOpsClient 用於與 Azure DevOps 進行交互，創建工作項目。
  */
+@Slf4j
 public class AzureDevOpsClient {
 
-    private final String organization;
+    // private final String organization;
+    private final String orgUri; // System.CollectionUri: https://dev.azure.com/ooxx/
     private final String projectName;
     private final String personalAccessToken;
     private final RestTemplate restTemplate;
@@ -24,12 +28,12 @@ public class AzureDevOpsClient {
     /**
      * 構造 AzureDevOpsClient 物件。
      *
-     * @param organization        Azure DevOps 組織名稱
+     * @param orgUri              Azure DevOps 組織 URI
      * @param projectName         Azure DevOps 專案名稱
      * @param personalAccessToken 個人訪問令牌
      */
-    public AzureDevOpsClient(String organization, String projectName, String personalAccessToken) {
-        this.organization = organization;
+    public AzureDevOpsClient(String orgUri, String projectName, String personalAccessToken) {
+        this.orgUri = orgUri;
         this.projectName = projectName;
         this.personalAccessToken = personalAccessToken;
         this.restTemplate = new RestTemplate();
@@ -53,6 +57,7 @@ public class AzureDevOpsClient {
         description.append(codeReviewResult.beforeModification() + "\n");
         description.append("調整後:\n");
         description.append(codeReviewResult.afterModification() + "\n");
+        log.info("title: {}, description: {}", title, description.toString());
 
         List<Map<String, Object>> requestBody = createRequestBody(title, description.toString(), assignedTo);
         HttpEntity<List<Map<String, Object>>> request = new HttpEntity<>(requestBody, headers);
@@ -68,8 +73,8 @@ public class AzureDevOpsClient {
      */
     private String buildUrl() {
         return String.format(
-                "https://dev.azure.com/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3",
-                organization,
+                "%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3",
+                orgUri,
                 projectName,
                 "task");
     }
