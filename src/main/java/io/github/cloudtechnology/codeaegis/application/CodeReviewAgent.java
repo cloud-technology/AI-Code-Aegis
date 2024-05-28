@@ -55,7 +55,7 @@ public class CodeReviewAgent extends AbstractShellComponent {
                 try {
                     String content = FileContentReader.readFileContent(Path.of(fileInfo.getAbsolutePath()));
                     fileInfo.setContent(content);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.error("Failed to read file content: {}", fileInfo.getAbsolutePath(), e);
                 }
             }
