@@ -50,28 +50,22 @@ public class AzureDevOpsClient {
         HttpHeaders headers = createHeaders();
         String title = codeReviewResult.issues();
         StringBuilder description = new StringBuilder();
-        description.append("<div>檔名:" + codeReviewResult.fileName() + "</div>");
-
-        description.append("<div>");
-        description.append("改善建議:<br/>");
-        description.append("<pre>");
+        // 使用 Markdown 語法格式化描述
+        description.append("**檔名:** " + codeReviewResult.fileName() + "\n\n");
+        description.append("**改善建議:**\n\n");
+        description.append("```\n");
         description.append(codeReviewResult.suggestions());
-        description.append("</pre>");
-        description.append("</div>");
+        description.append("\n```\n\n");
 
-        description.append("<div>");
-        description.append("調整前:<br/>");
-        description.append("<pre>");
+        description.append("**調整前:**\n\n");
+        description.append("```\n");
         description.append(codeReviewResult.beforeModification());
-        description.append("</pre>");
-        description.append("</div>");
+        description.append("\n```\n\n");
 
-        description.append("<div>");
-        description.append("調整後:<br/>");
-        description.append("<pre>");
+        description.append("**調整後:**\n\n");
+        description.append("```\n");
         description.append(codeReviewResult.afterModification());
-        description.append("</pre>");
-        description.append("</div>");
+        description.append("\n```\n\n");
         log.info("title: {}, description: {}", title, description.toString());
 
         List<Map<String, Object>> requestBody = createRequestBody(title, description.toString(), assignedTo);
